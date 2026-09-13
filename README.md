@@ -45,6 +45,10 @@ Environment variables (`frontend/.env`):
 3. Build the frontend with `npm run build` and serve the `dist/` folder from a static host or reverse proxy.
 4. Run the backend behind a process manager (e.g. systemd, Docker) rather than `--reload`.
 
+## Screenshots
+[Server Dashboard Screenshot](Screenshots/Server-Dashboard.png)
+
+[Docker Screenshot](Screenshots/Docker.png)
 ## Project structure
 
 ```
