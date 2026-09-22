@@ -1,8 +1,13 @@
+<<<<<<< HEAD
 import json
 import os
 import sys
 import urllib.error
 import urllib.request
+=======
+import os
+import sys
+>>>>>>> 6efa73d05c972ef1197a6d88dccd3c49f2239d5b
 
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Header, HTTPException
@@ -75,6 +80,7 @@ def root():
     return {"message": "Server Dashboard API is running!"}
 
 
+<<<<<<< HEAD
 HOST_METRICS_URL = os.environ.get(
     "HOST_METRICS_URL",
     "",
@@ -105,12 +111,26 @@ def get_host_metrics():
         ) from exc
 
 
+=======
+>>>>>>> 6efa73d05c972ef1197a6d88dccd3c49f2239d5b
 @app.get(
     "/api/system",
     dependencies=[Depends(require_api_key)],
 )
 def get_system_info():
+<<<<<<< HEAD
     return get_host_metrics()
+=======
+    return {
+        "cpu": psutil.cpu_percent(interval=None),
+        "ram": psutil.virtual_memory().percent,
+        "ram_total_gb": round(
+            psutil.virtual_memory().total / (1024 ** 3),
+            1,
+        ),
+        "disk": psutil.disk_usage("/").percent,
+    }
+>>>>>>> 6efa73d05c972ef1197a6d88dccd3c49f2239d5b
 
 
 @app.get(

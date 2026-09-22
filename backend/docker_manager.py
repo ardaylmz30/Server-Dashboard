@@ -14,7 +14,11 @@ def get_containers():
         {
             "name": container.name,
             "status": container.status,
+<<<<<<< HEAD
             "image": container.attrs.get("Config", {}).get("Image", "unknown"),
+=======
+            "image": container.image.tags[0] if container.image.tags else "unknown",
+>>>>>>> 6efa73d05c972ef1197a6d88dccd3c49f2239d5b
         }
         for container in containers
     ]

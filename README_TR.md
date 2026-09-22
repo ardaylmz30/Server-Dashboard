@@ -4,7 +4,10 @@ Ana makine sistem kaynaklarını (CPU/RAM/disk) izlemek ve Docker konteynerlerin
 
 - **Frontend**: React 19 + TypeScript + Vite + Recharts
 - **Backend**: FastAPI + Uvicorn + psutil + Docker SDK
+<<<<<<< HEAD
 - **Windows host metrics agent**: PowerShell (Windows ana makine CPU/RAM/C: disk)
+=======
+>>>>>>> 6efa73d05c972ef1197a6d88dccd3c49f2239d5b
 
 ## Backend
 
@@ -45,6 +48,7 @@ Ortam değişkenleri (`frontend/.env`):
 3. Frontend'i `npm run build` komutuyla derleyin ve `dist/` klasörünü statik bir sunucu veya ters proxy (reverse proxy) üzerinden sunun.
 4. Backend'i `--reload` parametresi yerine bir süreç yöneticisi (örn. systemd, Docker) arkasında çalıştırın.
 
+<<<<<<< HEAD
 ## Windows'ta Docker kullanımı
 
 Uygulama `start.bat` ile başlatıldığında FastAPI backend'i Docker içinde çalışır; küçük bir Windows host metrics agent (`host-agent/host_metrics.ps1`) ise Windows makinesinde `http://localhost:8765` üzerinde dinleyerek çalışır. `/api/system` endpoint'i CPU, RAM ve C: disk kullanımını Linux backend container'ından değil, bu agent'tan alır. `start.bat`, agent'ı küçük bir yeniden-başlatma döngüsü içinde çalıştırır; agent herhangi bir sebeple kapanırsa dashboard host metriksiz kalmadan otomatik olarak yeniden başlatılır.
@@ -70,6 +74,8 @@ Bu pencereyi açık bırak, ardından ikinci bir terminalde `docker compose up` 
   - Windows Firewall ilk çalıştırmada script'i engellemiş olabilir;
   - çökmüşse elle yeniden başlat (`start.bat` bunu artık otomatik yapıyor).
 
+=======
+>>>>>>> 6efa73d05c972ef1197a6d88dccd3c49f2239d5b
 ## Ekran Görüntüleri
 [Sunucu Paneli Ekran Görüntüsü](Screenshots/Server-Dashboard.png)
 
