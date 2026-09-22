@@ -5,10 +5,8 @@ managing Docker containers from a web UI.
 
 - **Frontend**: React 19 + TypeScript + Vite + Recharts
 - **Backend**: FastAPI + Uvicorn + psutil + Docker SDK
-<<<<<<< HEAD
 - **Windows host metrics agent**: PowerShell (Windows host CPU/RAM/C: disk)
-=======
->>>>>>> 6efa73d05c972ef1197a6d88dccd3c49f2239d5b
+
 
 ## Backend
 
