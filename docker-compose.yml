@@ -1,0 +1,44 @@
+services:
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+
+    container_name: server-dashboard-backend
+
+    environment:
+      DASHBOARD_API_KEY: ${DASHBOARD_API_KEY:-server-dashboard-local-key}
+      DASHBOARD_CORS_ORIGINS: http://localhost:3000
+      HOST_METRICS_URL: http://host.docker.internal:8765
+
+    ports:
+      - "8000:8000"
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+    restart: unless-stopped
+
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+
+      args:
+        VITE_API_URL: http://localhost:8000
+        VITE_API_KEY: ${DASHBOARD_API_KEY:-server-dashboard-local-key}
+
+    container_name: server-dashboard-frontend
+
+    ports:
+      - "3000:80"
+
+    depends_on:
+      - backend
+
+    restart: unless-stopped

@@ -1,0 +1,186 @@
+import json
+import os
+import sys
+import urllib.error
+import urllib.request
+
+from dotenv import load_dotenv
+from fastapi import Depends, FastAPI, Header, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+import docker
+import psutil
+
+load_dotenv()
+
+from docker_manager import (
+    get_containers,
+    start_container,
+    stop_container,
+    restart_container,
+    get_container_logs,
+)
+
+
+app = FastAPI(title="Server Dashboard API")
+
+
+allowed_origins = [
+    origin.strip()
+    for origin in os.environ.get(
+        "DASHBOARD_CORS_ORIGINS",
+        "http://localhost:5173",
+    ).split(",")
+    if origin.strip()
+]
+
+if "*" in allowed_origins:
+    raise RuntimeError(
+        "DASHBOARD_CORS_ORIGINS içinde '*' kullanılamaz."
+    )
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+API_KEY = os.environ.get("DASHBOARD_API_KEY")
+
+if not API_KEY:
+    sys.exit(
+        "[server-dashboard] HATA: DASHBOARD_API_KEY tanımlı değil. "
+        "Güvenlik nedeniyle uygulama başlatılmıyor."
+    )
+
+
+def require_api_key(
+    x_api_key: str | None = Header(
+        default=None,
+        alias="X-API-Key",
+    ),
+):
+    if x_api_key != API_KEY:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid or missing API key.",
+        )
+
+
+@app.get("/")
+def root():
+    return {"message": "Server Dashboard API is running!"}
+
+
+HOST_METRICS_URL = os.environ.get(
+    "HOST_METRICS_URL",
+    "",
+).rstrip("/")
+
+
+def get_host_metrics():
+    if not HOST_METRICS_URL:
+        memory = psutil.virtual_memory()
+        return {
+            "cpu": psutil.cpu_percent(interval=None),
+            "ram": memory.percent,
+            "ram_total_gb": round(memory.total / (1024 ** 3), 1),
+            "disk": psutil.disk_usage("/").percent,
+            "source": "backend-container",
+        }
+
+    try:
+        with urllib.request.urlopen(
+            f"{HOST_METRICS_URL}/metrics",
+            timeout=1.5,
+        ) as response:
+            return json.loads(response.read().decode("utf-8"))
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Windows host metrics agent unavailable: {exc}",
+        ) from exc
+
+
+@app.get(
+    "/api/system",
+    dependencies=[Depends(require_api_key)],
+)
+def get_system_info():
+    return get_host_metrics()
+
+
+@app.get(
+    "/api/docker",
+    dependencies=[Depends(require_api_key)],
+)
+def get_docker_info():
+    try:
+        return get_containers()
+    except docker.errors.APIError as exc:
+        raise HTTPException(
+            status_code=502,
+            detail=f"Docker API error: {exc.explanation}",
+        ) from exc
+
+
+def handle_docker_action(action, container_name: str):
+    try:
+        return action(container_name)
+    except docker.errors.NotFound as exc:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Container '{container_name}' not found.",
+        ) from exc
+    except docker.errors.APIError as exc:
+        raise HTTPException(
+            status_code=502,
+            detail=f"Docker API error: {exc.explanation}",
+        ) from exc
+
+
+@app.post(
+    "/api/docker/{container_name}/start",
+    dependencies=[Depends(require_api_key)],
+)
+def start_docker_container(container_name: str):
+    return handle_docker_action(
+        start_container,
+        container_name,
+    )
+
+
+@app.post(
+    "/api/docker/{container_name}/stop",
+    dependencies=[Depends(require_api_key)],
+)
+def stop_docker_container(container_name: str):
+    return handle_docker_action(
+        stop_container,
+        container_name,
+    )
+
+
+@app.post(
+    "/api/docker/{container_name}/restart",
+    dependencies=[Depends(require_api_key)],
+)
+def restart_docker_container(container_name: str):
+    return handle_docker_action(
+        restart_container,
+        container_name,
+    )
+
+
+@app.get(
+    "/api/docker/{container_name}/logs",
+    dependencies=[Depends(require_api_key)],
+)
+def docker_container_logs(container_name: str):
+    return handle_docker_action(
+        get_container_logs,
+        container_name,
+    )
