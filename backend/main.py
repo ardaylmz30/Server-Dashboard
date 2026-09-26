@@ -1,13 +1,19 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)
 import json
 import os
 import sys
 import urllib.error
 import urllib.request
+<<<<<<< HEAD
 =======
 import os
 import sys
 >>>>>>> 6efa73d05c972ef1197a6d88dccd3c49f2239d5b
+=======
+>>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)
 
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Header, HTTPException
@@ -23,6 +29,10 @@ from docker_manager import (
     stop_container,
     restart_container,
     get_container_logs,
+<<<<<<< HEAD
+=======
+    get_container_stats,
+>>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)
 )
 
 
@@ -81,6 +91,9 @@ def root():
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)
 HOST_METRICS_URL = os.environ.get(
     "HOST_METRICS_URL",
     "",
@@ -111,13 +124,17 @@ def get_host_metrics():
         ) from exc
 
 
+<<<<<<< HEAD
 =======
 >>>>>>> 6efa73d05c972ef1197a6d88dccd3c49f2239d5b
+=======
+>>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)
 @app.get(
     "/api/system",
     dependencies=[Depends(require_api_key)],
 )
 def get_system_info():
+<<<<<<< HEAD
 <<<<<<< HEAD
     return get_host_metrics()
 =======
@@ -131,6 +148,9 @@ def get_system_info():
         "disk": psutil.disk_usage("/").percent,
     }
 >>>>>>> 6efa73d05c972ef1197a6d88dccd3c49f2239d5b
+=======
+    return get_host_metrics()
+>>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)
 
 
 @app.get(
@@ -203,4 +223,20 @@ def docker_container_logs(container_name: str):
     return handle_docker_action(
         get_container_logs,
         container_name,
+<<<<<<< HEAD
     )
+=======
+    )
+
+@app.get(
+    "/api/docker/{container_name}/stats",
+    dependencies=[Depends(require_api_key)],
+)
+def docker_container_stats(container_name: str):
+    try:
+        return get_container_stats(container_name)
+    except docker.errors.NotFound as exc:
+        raise HTTPException(status_code=404, detail=f"Container '{container_name}' not found.") from exc
+    except docker.errors.APIError as exc:
+        raise HTTPException(status_code=502, detail=f"Docker API error: {exc.explanation}") from exc
+>>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)

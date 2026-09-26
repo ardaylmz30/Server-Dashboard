@@ -111,4 +111,20 @@ export async function fetchContainerLogs(
   }
 
   return response.json();
+<<<<<<< HEAD
 }
+=======
+}
+
+export interface ContainerStats {
+  name: string; status: string; running: boolean; cpu_percent: number; memory_percent: number;
+  memory_usage_mb: number; memory_limit_mb: number; network_rx_mb: number; network_tx_mb: number;
+  block_read_mb: number; block_write_mb: number; pids: number;
+}
+
+export async function fetchContainerStats(containerName: string): Promise<ContainerStats> {
+  const response = await fetch(`${API_URL}/api/docker/${encodeURIComponent(containerName)}/stats`, { headers: authHeaders });
+  if (!response.ok) throw new Error(await extractErrorDetail(response, "Container metrics API error"));
+  return response.json();
+}
+>>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)

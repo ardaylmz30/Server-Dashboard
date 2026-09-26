@@ -7,7 +7,6 @@ managing Docker containers from a web UI.
 - **Backend**: FastAPI + Uvicorn + psutil + Docker SDK
 - **Windows host metrics agent**: PowerShell (Windows host CPU/RAM/C: disk)
 
-
 ## Backend
 
 ```bash
@@ -47,7 +46,6 @@ Environment variables (`frontend/.env`):
 3. Build the frontend with `npm run build` and serve the `dist/` folder from a static host or reverse proxy.
 4. Run the backend behind a process manager (e.g. systemd, Docker) rather than `--reload`.
 
-<<<<<<< HEAD
 ## Docker on Windows
 
 When the application is started with `start.bat`, the FastAPI backend runs in Docker while a small Windows host metrics agent (`host-agent/host_metrics.ps1`) runs on the Windows machine, listening on `http://localhost:8765`. The `/api/system` endpoint reads CPU, RAM and C: disk usage from this agent rather than from the Linux backend container. `start.bat` runs the agent inside a small restart loop, so if it ever exits it relaunches automatically instead of leaving the dashboard without host metrics.
@@ -73,8 +71,11 @@ Leave that window open, then run `docker compose up` in a second terminal. Witho
   - Windows Firewall hasn't blocked the script on first run;
   - if it crashed, restart it manually (`start.bat` does this automatically going forward).
 
-=======
->>>>>>> 6efa73d05c972ef1197a6d88dccd3c49f2239d5b
+## Docker on Windows
+
+When the application is started with `start.bat`, the FastAPI backend runs in Docker while a small Windows host metrics agent runs on the Windows machine. The `/api/system` endpoint reads CPU, RAM and C: disk usage from the Windows host rather than from the Linux backend container.
+
+Use `start.bat` to start the dashboard and `stop.bat` to stop it.
 ## Screenshots
 [Server Dashboard Screenshot](Screenshots/Server-Dashboard.png)
 
@@ -95,9 +96,4 @@ frontend/
 ```
 
 As the codebase grows, split `App.tsx`'s UI pieces into `components/` and keep
-`App.tsx` as the orchestration/state layer — no need for Redux, React Query, or
-<<<<<<< HEAD
-similar until that complexity actually shows up.
-=======
-similar until that complexity actually shows up.
->>>>>>> 6efa73d05c972ef1197a6d88dccd3c49f2239d5b
+`App.tsx` as the orchestration/state layer — no need for Redux, React Query, or similar libraries.

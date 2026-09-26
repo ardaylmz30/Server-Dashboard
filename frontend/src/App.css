@@ -331,10 +331,18 @@ td {
   font-size: 13px;
 }
 
+<<<<<<< HEAD
 thead th:nth-child(1), tbody td:nth-child(1) { width: 30%; }
 thead th:nth-child(2), tbody td:nth-child(2) { width: 34%; }
 thead th:nth-child(3), tbody td:nth-child(3) { width: 23%; }
 thead th:nth-child(4), tbody td:nth-child(4) { width: 13%; }
+=======
+thead th:nth-child(1), tbody td:nth-child(1) { width: 26%; }
+thead th:nth-child(2), tbody td:nth-child(2) { width: 28%; }
+thead th:nth-child(3), tbody td:nth-child(3) { width: 16%; }
+thead th:nth-child(4), tbody td:nth-child(4) { width: 17%; }
+thead th:nth-child(5), tbody td:nth-child(5) { width: 13%; }
+>>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)
 
 .container-name {
   display: flex;
@@ -479,6 +487,82 @@ thead th:nth-child(4), tbody td:nth-child(4) { width: 13%; }
   color: #8a919b;
 }
 
+<<<<<<< HEAD
+=======
+
+.container-name-button {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+
+.container-name-button:hover .container-name {
+  color: #2563eb;
+}
+
+.back-button {
+  border: 0;
+  padding: 0;
+  margin-bottom: 16px;
+  background: transparent;
+  color: #5f6873;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.back-button:hover { color: #2563eb; }
+
+.container-live-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 5px;
+  font-size: 13px;
+}
+
+.container-live-status > span { width: 7px; height: 7px; border-radius: 50%; }
+.container-live-status.running { color: #19703a; }
+.container-live-status.running > span { background: #1c8a47; }
+.container-live-status.stopped { color: #747b84; }
+.container-live-status.stopped > span { background: #9aa1aa; }
+
+.container-loading {
+  min-height: 180px;
+  display: grid;
+  place-items: center;
+  color: #7a828d;
+  font-size: 13px;
+}
+
+.container-metrics-grid { margin-bottom: 14px; }
+
+.container-io-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.detail-card {
+  min-height: 112px;
+  padding: 20px 22px;
+  border: 1px solid #e2e5e9;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.detail-card strong {
+  display: block;
+  margin-top: 15px;
+  color: #171c22;
+  font-size: 22px;
+  letter-spacing: -0.025em;
+}
+
+>>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)
 .footer {
   display: flex;
   justify-content: space-between;
@@ -577,6 +661,13 @@ thead th:nth-child(4), tbody td:nth-child(4) { width: 13%; }
     grid-template-columns: 1fr;
   }
 
+<<<<<<< HEAD
+=======
+  .container-io-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+>>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)
   .metric-card {
     min-height: 145px;
   }
@@ -598,7 +689,84 @@ thead th:nth-child(4), tbody td:nth-child(4) { width: 13%; }
     min-width: 720px;
   }
 
+<<<<<<< HEAD
   .footer {
+=======
+
+.container-name-button {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+
+.container-name-button:hover .container-name {
+  color: #2563eb;
+}
+
+.back-button {
+  border: 0;
+  padding: 0;
+  margin-bottom: 16px;
+  background: transparent;
+  color: #5f6873;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.back-button:hover { color: #2563eb; }
+
+.container-live-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 5px;
+  font-size: 13px;
+}
+
+.container-live-status > span { width: 7px; height: 7px; border-radius: 50%; }
+.container-live-status.running { color: #19703a; }
+.container-live-status.running > span { background: #1c8a47; }
+.container-live-status.stopped { color: #747b84; }
+.container-live-status.stopped > span { background: #9aa1aa; }
+
+.container-loading {
+  min-height: 180px;
+  display: grid;
+  place-items: center;
+  color: #7a828d;
+  font-size: 13px;
+}
+
+.container-metrics-grid { margin-bottom: 14px; }
+
+.container-io-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.detail-card {
+  min-height: 112px;
+  padding: 20px 22px;
+  border: 1px solid #e2e5e9;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.detail-card strong {
+  display: block;
+  margin-top: 15px;
+  color: #171c22;
+  font-size: 22px;
+  letter-spacing: -0.025em;
+}
+
+.footer {
+>>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)
     flex-direction: column;
     gap: 5px;
   }
@@ -624,4 +792,101 @@ thead th:nth-child(4), tbody td:nth-child(4) { width: 13%; }
     align-items: flex-start;
     flex-direction: column;
   }
+<<<<<<< HEAD
 }
+=======
+
+  .container-io-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.container-header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.container-detail-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.detail-action-button {
+  padding: 7px 14px;
+  border: 1px solid #d7dbe0;
+  border-radius: 6px;
+  background: #fff;
+  color: #30363e;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.detail-action-button:hover {
+  background: #f3f5f7;
+}
+
+.detail-action-button.danger {
+  border-color: #f0d3d3;
+  color: #a43b3b;
+}
+
+.detail-action-button.danger:hover {
+  background: #fbeeee;
+}
+
+.detail-action-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.metrics-column {
+  text-align: center;
+}
+
+.metrics-link-button {
+  display: inline-block;
+  padding: 6px 12px;
+  border: 1px solid #c7d6f5;
+  border-radius: 6px;
+  background: #eef3ff;
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.metrics-link-button:hover {
+  background: #dfe9ff;
+}
+
+.logs-panel {
+  padding: 0;
+  overflow: hidden;
+}
+
+.logs-toggle-button {
+  width: 100%;
+  padding: 14px 22px;
+  border: 0;
+  background: transparent;
+  color: #30363e;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+}
+
+.logs-toggle-button:hover {
+  background: #f7f8fa;
+}
+
+.logs-panel-body {
+  border-top: 1px solid #e7e9ec;
+}
+>>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)
