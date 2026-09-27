@@ -331,18 +331,11 @@ td {
   font-size: 13px;
 }
 
-<<<<<<< HEAD
-thead th:nth-child(1), tbody td:nth-child(1) { width: 30%; }
-thead th:nth-child(2), tbody td:nth-child(2) { width: 34%; }
-thead th:nth-child(3), tbody td:nth-child(3) { width: 23%; }
-thead th:nth-child(4), tbody td:nth-child(4) { width: 13%; }
-=======
 thead th:nth-child(1), tbody td:nth-child(1) { width: 26%; }
 thead th:nth-child(2), tbody td:nth-child(2) { width: 28%; }
 thead th:nth-child(3), tbody td:nth-child(3) { width: 16%; }
 thead th:nth-child(4), tbody td:nth-child(4) { width: 17%; }
 thead th:nth-child(5), tbody td:nth-child(5) { width: 13%; }
->>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)
 
 .container-name {
   display: flex;
@@ -487,8 +480,6 @@ thead th:nth-child(5), tbody td:nth-child(5) { width: 13%; }
   color: #8a919b;
 }
 
-<<<<<<< HEAD
-=======
 
 .container-name-button {
   border: 0;
@@ -562,7 +553,6 @@ thead th:nth-child(5), tbody td:nth-child(5) { width: 13%; }
   letter-spacing: -0.025em;
 }
 
->>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)
 .footer {
   display: flex;
   justify-content: space-between;
@@ -661,13 +651,10 @@ thead th:nth-child(5), tbody td:nth-child(5) { width: 13%; }
     grid-template-columns: 1fr;
   }
 
-<<<<<<< HEAD
-=======
   .container-io-grid {
     grid-template-columns: 1fr 1fr;
   }
 
->>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)
   .metric-card {
     min-height: 145px;
   }
@@ -689,9 +676,6 @@ thead th:nth-child(5), tbody td:nth-child(5) { width: 13%; }
     min-width: 720px;
   }
 
-<<<<<<< HEAD
-  .footer {
-=======
 
 .container-name-button {
   border: 0;
@@ -766,7 +750,6 @@ thead th:nth-child(5), tbody td:nth-child(5) { width: 13%; }
 }
 
 .footer {
->>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)
     flex-direction: column;
     gap: 5px;
   }
@@ -792,9 +775,6 @@ thead th:nth-child(5), tbody td:nth-child(5) { width: 13%; }
     align-items: flex-start;
     flex-direction: column;
   }
-<<<<<<< HEAD
-}
-=======
 
   .container-io-grid {
     grid-template-columns: 1fr;
@@ -889,4 +869,3 @@ thead th:nth-child(5), tbody td:nth-child(5) { width: 13%; }
 .logs-panel-body {
   border-top: 1px solid #e7e9ec;
 }
->>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)

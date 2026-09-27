@@ -24,17 +24,6 @@ frontend/dist-ssr/
 .env
 .env.*
 !.env.example
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-# Agent Files
-builder.md
-reviewer.md
-ui-agent.md
-planner.md
-=======
->>>>>>> 6efa73d05c972ef1197a6d88dccd3c49f2239d5b
-=======
 
 # Agents
 REMINDER.md
@@ -42,4 +31,3 @@ builder.md
 planner.md
 reviewer.md
 ui-agent.md
->>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)

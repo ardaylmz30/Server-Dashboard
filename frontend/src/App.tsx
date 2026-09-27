@@ -4,10 +4,7 @@ import {
   fetchContainers as fetchContainersApi,
   runContainerAction,
   fetchContainerLogs,
-<<<<<<< HEAD
-=======
   fetchContainerStats,
->>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)
 } from "./api/dashboardApi";
 import { createPortal } from "react-dom";
 import {
@@ -45,8 +42,6 @@ interface LogData {
   logs: string;
 }
 
-<<<<<<< HEAD
-=======
 interface ContainerStats {
   name: string; status: string; running: boolean; cpu_percent: number; memory_percent: number;
   memory_usage_mb: number; memory_limit_mb: number; network_rx_mb: number; network_tx_mb: number;
@@ -59,7 +54,6 @@ interface ContainerHistoryPoint {
   memory: number;
 }
 
->>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)
 const SYSTEM_POLL_MS = 2000;
 const CONTAINER_POLL_MS = 10000;
 const MAX_HISTORY = 30;
@@ -78,12 +72,9 @@ function App() {
   const [logs, setLogs] = useState<LogData | null>(null);
   const [logsLoading, setLogsLoading] = useState(false);
   const [logsError, setLogsError] = useState<string | null>(null);
-<<<<<<< HEAD
-=======
   const [selectedContainer, setSelectedContainer] = useState<string | null>(
     () => new URLSearchParams(window.location.search).get("container"),
   );
->>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)
   const menuRef = useRef<HTMLDivElement | null>(null);
   const portalMenuRef = useRef<HTMLDivElement | null>(null);
   type ConnectionStatus = "connecting" | "connected" | "disconnected";
@@ -115,11 +106,7 @@ function App() {
         ].slice(-MAX_HISTORY));
       } catch {
         setConnectionStatus("disconnected");
-<<<<<<< HEAD
-        setError("Backend sunucusuna bağlanılamadı.");
-=======
         setError("Could not connect to the backend server.");
->>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)
       }
     }, []);
   const fetchContainers = useCallback(async () => {
@@ -129,11 +116,7 @@ function App() {
     setContainers(data);
     setError(null);
   } catch {
-<<<<<<< HEAD
-    setError("Docker bilgileri alınamadı.");
-=======
     setError("Docker information could not be retrieved.");
->>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)
   }
 }, []);
 
@@ -197,11 +180,7 @@ function App() {
         setError(
           actionError instanceof Error
             ? actionError.message
-<<<<<<< HEAD
-            : "Docker işlemi gerçekleştirilemedi.",
-=======
             : "The Docker operation could not be performed.",
->>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)
         );
       } finally {
         setActionLoading(null);
@@ -221,19 +200,13 @@ function App() {
         setLogsError(
           logError instanceof Error
             ? logError.message
-<<<<<<< HEAD
-            : "Container logları alınamadı.",
-=======
             : "Container logs could not be retrieved.",
->>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)
         );
       } finally {
         setLogsLoading(false);
       }
     };
 
-<<<<<<< HEAD
-=======
   const openContainerDetails = useCallback((name: string) => {
     window.history.pushState({ container: name }, "", `?container=${encodeURIComponent(name)}`);
     setSelectedContainer(name);
@@ -254,7 +227,6 @@ function App() {
     return () => window.removeEventListener("popstate", handlePopState);
   }, []);
 
->>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)
   const runningCount = useMemo(
     () => containers.filter((container) => container.status === "running").length,
     [containers],
@@ -266,8 +238,6 @@ function App() {
     : "—";
 
 
-<<<<<<< HEAD
-=======
   if (selectedContainer) {
     return (
       <ContainerDetails
@@ -279,7 +249,6 @@ function App() {
     );
   }
 
->>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)
   return (
     <div className="app-shell">
       <main className="dashboard">
@@ -390,21 +359,14 @@ function App() {
                   <th>NAME</th>
                   <th>IMAGE</th>
                   <th>STATUS</th>
-<<<<<<< HEAD
-=======
                   <th className="metrics-column">METRICS</th>
->>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)
                   <th className="actions-column">ACTION</th>
                 </tr>
               </thead>
               <tbody>
                 {containers.length === 0 ? (
                   <tr>
-<<<<<<< HEAD
-                    <td colSpan={4} className="empty-row">No Docker containers found.</td>
-=======
                     <td colSpan={5} className="empty-row">No Docker containers found.</td>
->>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)
                   </tr>
                 ) : (
                   containers.map((container) => (
@@ -419,10 +381,7 @@ function App() {
                       setMenuPosition={setMenuPosition}
                       onAction={handleContainerAction}
                       onLogs={openLogs}
-<<<<<<< HEAD
-=======
                       onOpenDetails={openContainerDetails}
->>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)
                       portalMenuRef={portalMenuRef}
                     />
                   ))
@@ -464,8 +423,6 @@ function App() {
   );
 }
 
-<<<<<<< HEAD
-=======
 interface ContainerDetailsProps {
   containerName: string;
   onBack: () => void;
@@ -639,7 +596,6 @@ function DetailCard({ label, value }: { label: string; value: string }) {
   return <article className="detail-card"><div className="metric-label">{label}</div><strong>{value}</strong></article>;
 }
 
->>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)
 interface MetricCardProps {
   label: string;
   value: string;
@@ -671,10 +627,7 @@ interface ContainerRowProps {
   setMenuPosition: (position: { top: number; left: number } | null) => void;
   onAction: (name: string, action: ContainerAction) => void;
   onLogs: (name: string) => void;
-<<<<<<< HEAD
-=======
   onOpenDetails: (name: string) => void;
->>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)
 }
 
 function ContainerRow({
@@ -688,10 +641,7 @@ function ContainerRow({
   setMenuPosition,
   onAction,
   onLogs,
-<<<<<<< HEAD
-=======
   onOpenDetails,
->>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)
 }: ContainerRowProps) {
   const isRunning = container.status === "running";
   const busy = actionLoading?.startsWith(`${container.name}:`) ?? false;
@@ -733,17 +683,10 @@ function ContainerRow({
   return (
     <tr>
       <td>
-<<<<<<< HEAD
-        <div className="container-name">
-          <span className={`container-marker ${isRunning ? "running" : "stopped"}`} />
-          <span>{container.name}</span>
-        </div>
-=======
         <span className="container-name">
           <span className={`container-marker ${isRunning ? "running" : "stopped"}`} />
           <span>{container.name}</span>
         </span>
->>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)
       </td>
       <td className="image-cell" title={container.image}>{container.image}</td>
       <td>
@@ -752,8 +695,6 @@ function ContainerRow({
           {isRunning ? "Running" : "Stopped"}
         </span>
       </td>
-<<<<<<< HEAD
-=======
       <td className="metrics-column">
         <a
           href={`?container=${encodeURIComponent(container.name)}`}
@@ -778,7 +719,6 @@ function ContainerRow({
           See metrics
         </a>
       </td>
->>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)
       <td className="actions-column">
         <div className="action-wrapper" ref={openMenu === container.name ? menuRef : undefined}>
           {busy && <span className="row-spinner" aria-label="Processing" />}
@@ -819,8 +759,4 @@ function ContainerRow({
   );
 }
 
-<<<<<<< HEAD
 export default App;
-=======
-export default App;
->>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)

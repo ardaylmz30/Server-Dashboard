@@ -14,23 +14,11 @@ def get_containers():
         {
             "name": container.name,
             "status": container.status,
-<<<<<<< HEAD
-<<<<<<< HEAD
             "image": container.attrs.get("Config", {}).get("Image", "unknown"),
-=======
-            "image": container.image.tags[0] if container.image.tags else "unknown",
->>>>>>> 6efa73d05c972ef1197a6d88dccd3c49f2239d5b
-=======
-            "image": container.attrs.get("Config", {}).get("Image", "unknown"),
->>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)
         }
         for container in containers
     ]
 
-<<<<<<< HEAD
-
-=======
->>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)
 def start_container(container_name: str):
     client = get_docker_client()
 
@@ -74,9 +62,6 @@ def get_container_logs(container_name: str):
     return {
         "name": container_name,
         "logs": logs
-<<<<<<< HEAD
-    }
-=======
     }
 
 def get_container_stats(container_name: str):
@@ -143,4 +128,3 @@ def get_container_stats(container_name: str):
         "block_write_mb": round(block_write / (1024 ** 2), 2),
         "pids": stats.get("pids_stats", {}).get("current", 0) or 0,
     }
->>>>>>> a8a63ec (Dcoker metrik sayfası eklendi)
