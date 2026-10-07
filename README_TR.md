@@ -5,7 +5,6 @@ Ana makine sistem kaynaklarını (CPU/RAM/disk) izlemek ve Docker konteynerlerin
 - **Frontend**: React 19 + TypeScript + Vite + Recharts
 - **Backend**: FastAPI + Uvicorn + psutil + Docker SDK
 - **Windows host metrics agent**: PowerShell (Windows ana makine CPU/RAM/C: disk)
-- **Windows host metrics agent**: PowerShell (Windows ana makine CPU/RAM/C: disk)
 
 
 ## Backend
@@ -23,7 +22,13 @@ Ortam değişkenleri (yerel geliştirme için hepsi isteğe bağlıdır):
 | Değişken                | Varsayılan                | Amaç                                                                    |
 |-------------------------|---------------------------|-------------------------------------------------------------------------|
 | `DASHBOARD_API_KEY`     | tanımsız (auth yok)       | Tanımlandığında; Docker başlatma/durdurma/yeniden başlatma/log uç noktaları isteklerde bu değeri içeren bir `X-API-Key` üst bilgisi (header) gerektirir. **Backend'i localhost dışına açmadan önce bu değeri mutlaka ayarlayın.** |
-| `DASHBOARD_CORS_ORIGINS`| `http://localhost:5173`   | İzin verilen frontend kökenlerinin (origins) virgülle ayrılmış listesi.  |
+| `DASHBOARD_CORS_ORIGINS`| `http://localhost:3000/`   | İzin verilen frontend kökenlerinin (origins) virgülle ayrılmış listesi.  |
+
+### Rastgele bir anahtar üretmek için:
+
+```bash
+   openssl rand -hex 32
+```
 
 ## Frontend
 
@@ -78,9 +83,17 @@ Uygulama `start.bat` ile başlatıldığında FastAPI backend'i Docker içinde �
 Dashboard'u başlatmak için `start.bat`, durdurmak için `stop.bat` kullanın.
 
 ## Ekran Görüntüleri
-[Sunucu Paneli Ekran Görüntüsü](Screenshots/Server-Dashboard.png)
+[Açık tema dashboard ana sayfası](Screenshots/Dashboard-home-page-light.png)
 
-[Docker Ekran Görüntüsü](Screenshots/Docker.png)
+[Açık tema docker metrik sayfası](Screenshots/Dashboard-Docker-container-page-light.png)
+
+[Koyu tema dashboard ana sayfası](Screenshots/Dashboard-home-page-dark.png)
+
+[Koyu tema docker metrik sayfası](Screenshots/Dashboard-Docker-container-page-dark.png)
+
+[Server görüntüleme için yan panel](Screenshots/Dashboard-servers-side-panel.png)
+
+[Server ekleme paneli](Screenshots/Dashboard-Add-Server-panel.png)
 
 ## Proje Yapısı
 

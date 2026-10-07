@@ -27,6 +27,16 @@ const authHeaders: HeadersInit | undefined = API_KEY
   ? { "X-API-Key": API_KEY }
   : undefined;
 
+export const LOCAL_SERVER_ID = "local";
+
+// Yerel sunucu eski /api/... uçlarını, uzak sunucular /api/servers/<id>/...
+// vekil uçlarını kullanır.
+function apiBase(serverId: string): string {
+  return serverId === LOCAL_SERVER_ID
+    ? `${API_URL}/api`
+    : `${API_URL}/api/servers/${encodeURIComponent(serverId)}`;
+}
+
 async function extractErrorDetail(
   response: Response,
   fallback: string,
@@ -35,9 +45,11 @@ async function extractErrorDetail(
   return body?.detail || fallback;
 }
 
-export async function fetchSystemInfo(): Promise<SystemInfo> {
+export async function fetchSystemInfo(
+  serverId: string = LOCAL_SERVER_ID,
+): Promise<SystemInfo> {
   const response = await fetch(
-    `${API_URL}/api/system`,
+    `${apiBase(serverId)}/system`,
     {
       headers: authHeaders,
     },
@@ -52,9 +64,11 @@ export async function fetchSystemInfo(): Promise<SystemInfo> {
   return response.json();
 }
 
-export async function fetchContainers(): Promise<Container[]> {
+export async function fetchContainers(
+  serverId: string = LOCAL_SERVER_ID,
+): Promise<Container[]> {
   const response = await fetch(
-    `${API_URL}/api/docker`,
+    `${apiBase(serverId)}/docker`,
     {
       headers: authHeaders,
     },
@@ -72,9 +86,10 @@ export async function fetchContainers(): Promise<Container[]> {
 export async function runContainerAction(
   containerName: string,
   action: ContainerAction,
+  serverId: string = LOCAL_SERVER_ID,
 ): Promise<void> {
   const response = await fetch(
-    `${API_URL}/api/docker/${encodeURIComponent(containerName)}/${action}`,
+    `${apiBase(serverId)}/docker/${encodeURIComponent(containerName)}/${action}`,
     {
       method: "POST",
       headers: authHeaders,
@@ -93,9 +108,10 @@ export async function runContainerAction(
 
 export async function fetchContainerLogs(
   containerName: string,
+  serverId: string = LOCAL_SERVER_ID,
 ): Promise<LogData> {
   const response = await fetch(
-    `${API_URL}/api/docker/${encodeURIComponent(containerName)}/logs`,
+    `${apiBase(serverId)}/docker/${encodeURIComponent(containerName)}/logs`,
     {
       headers: authHeaders,
     },
@@ -119,8 +135,80 @@ export interface ContainerStats {
   block_read_mb: number; block_write_mb: number; pids: number;
 }
 
-export async function fetchContainerStats(containerName: string): Promise<ContainerStats> {
-  const response = await fetch(`${API_URL}/api/docker/${encodeURIComponent(containerName)}/stats`, { headers: authHeaders });
+export async function fetchContainerStats(
+  containerName: string,
+  serverId: string = LOCAL_SERVER_ID,
+): Promise<ContainerStats> {
+  const response = await fetch(`${apiBase(serverId)}/docker/${encodeURIComponent(containerName)}/stats`, { headers: authHeaders });
   if (!response.ok) throw new Error(await extractErrorDetail(response, "Container metrics API error"));
   return response.json();
+}
+
+export interface ServerInfo {
+  id: string;
+  name: string;
+  url: string;
+  is_local: boolean;
+}
+
+export interface ServerHealth {
+  online: boolean;
+  cpu?: number;
+  ram?: number;
+  disk?: number;
+  latency_ms?: number;
+  error?: string;
+}
+
+export type ServerHealthMap = Record<string, ServerHealth>;
+
+export interface NewServer {
+  name: string;
+  url: string;
+  api_key: string;
+}
+
+const jsonHeaders: HeadersInit = {
+  ...(authHeaders ?? {}),
+  "Content-Type": "application/json",
+};
+
+export async function fetchServers(): Promise<ServerInfo[]> {
+  const response = await fetch(`${API_URL}/api/servers`, { headers: authHeaders });
+  if (!response.ok) throw new Error(await extractErrorDetail(response, "Servers could not be loaded."));
+  return response.json();
+}
+
+export async function fetchServersHealth(): Promise<ServerHealthMap> {
+  const response = await fetch(`${API_URL}/api/servers/health`, { headers: authHeaders });
+  if (!response.ok) throw new Error(await extractErrorDetail(response, "Server status could not be loaded."));
+  return response.json();
+}
+
+export async function testServer(server: NewServer): Promise<{ latency_ms: number }> {
+  const response = await fetch(`${API_URL}/api/servers/test`, {
+    method: "POST",
+    headers: jsonHeaders,
+    body: JSON.stringify(server),
+  });
+  if (!response.ok) throw new Error(await extractErrorDetail(response, "Connection test failed."));
+  return response.json();
+}
+
+export async function addServer(server: NewServer): Promise<ServerInfo> {
+  const response = await fetch(`${API_URL}/api/servers`, {
+    method: "POST",
+    headers: jsonHeaders,
+    body: JSON.stringify(server),
+  });
+  if (!response.ok) throw new Error(await extractErrorDetail(response, "Server could not be added."));
+  return response.json();
+}
+
+export async function removeServer(serverId: string): Promise<void> {
+  const response = await fetch(`${API_URL}/api/servers/${encodeURIComponent(serverId)}`, {
+    method: "DELETE",
+    headers: authHeaders,
+  });
+  if (!response.ok) throw new Error(await extractErrorDetail(response, "Server could not be removed."));
 }

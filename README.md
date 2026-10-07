@@ -24,6 +24,12 @@ Environment variables (all optional for local development):
 | `DASHBOARD_API_KEY`     | unset (no auth)           | When set, Docker start/stop/restart/logs endpoints require an `X-API-Key` header with this value. **Set this before exposing the backend beyond localhost.** |
 | `DASHBOARD_CORS_ORIGINS`| `http://localhost:5173`   | Comma-separated list of allowed frontend origins.                       |
 
+### To generate a random key:
+
+```bash
+   openssl rand -hex 32
+```
+
 ## Frontend
 
 ```bash
@@ -77,9 +83,17 @@ When the application is started with `start.bat`, the FastAPI backend runs in Do
 
 Use `start.bat` to start the dashboard and `stop.bat` to stop it.
 ## Screenshots
-[Server Dashboard Screenshot](Screenshots/Server-Dashboard.png)
+[Dashboard home page (light theme)](Screenshots/Dashboard-home-page-light.png)
 
-[Docker Screenshot](Screenshots/Docker.png)
+[Docker metrics page (light theme)](Screenshots/Dashboard-Docker-container-page-light.png)
+
+[Dashboard home page (dark theme)](Screenshots/Dashboard-home-page-dark.png)
+
+[Docker metrics page (dark theme)](Screenshots/Dashboard-Docker-container-page-dark.png)
+
+[Server view side panel](Screenshots/Dashboard-servers-side-panel.png)
+
+[Add server panel](Screenshots/Dashboard-Add-Server-panel.png)
 ## Project structure
 
 ```

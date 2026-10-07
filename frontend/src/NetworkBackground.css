@@ -1,0 +1,64 @@
+.network-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  --net-line: rgba(37, 99, 235, 0.3);
+  --net-node: rgba(37, 99, 235, 0.6);
+  -webkit-mask-image:
+    radial-gradient(ellipse 85% 80% at 90% 5%, #000 0%, transparent 100%),
+    radial-gradient(ellipse 70% 70% at 5% 100%, #000 0%, transparent 100%);
+  mask-image:
+    radial-gradient(ellipse 85% 80% at 90% 5%, #000 0%, transparent 100%),
+    radial-gradient(ellipse 70% 70% at 5% 100%, #000 0%, transparent 100%);
+}
+
+:root[data-theme="dark"] .network-bg {
+  --net-line: rgba(76, 141, 255, 0.34);
+  --net-node: rgba(76, 141, 255, 0.75);
+}
+
+.network-bg svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.network-bg__edges line {
+  stroke: var(--net-line);
+  stroke-width: 1.2;
+}
+
+.network-bg__nodes circle {
+  fill: var(--net-node);
+}
+
+.app-shell {
+  position: relative;
+  z-index: 1;
+  background: transparent !important;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .network-bg__pulse {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: network-pulse 6s ease-in-out infinite;
+  }
+
+  .network-bg__edges .network-bg__packet {
+    stroke-dasharray: 6 90;
+    animation: network-packet 8s linear infinite;
+  }
+}
+
+@keyframes network-pulse {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.9); }
+}
+
+@keyframes network-packet {
+  from { stroke-dashoffset: 0; }
+  to { stroke-dashoffset: -192; }
+}

@@ -11,6 +11,7 @@ services:
       DASHBOARD_API_KEY: ${DASHBOARD_API_KEY:-server-dashboard-local-key}
       DASHBOARD_CORS_ORIGINS: http://localhost:3000
       HOST_METRICS_URL: http://host.docker.internal:8765
+      DASHBOARD_DATA_DIR: /data
 
     ports:
       - "8000:8000"
@@ -20,6 +21,7 @@ services:
 
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - dashboard-data:/data
 
     restart: unless-stopped
 
@@ -42,3 +44,6 @@ services:
       - backend
 
     restart: unless-stopped
+
+volumes:
+  dashboard-data:

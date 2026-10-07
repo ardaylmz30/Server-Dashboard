@@ -5,7 +5,14 @@ import {
   runContainerAction,
   fetchContainerLogs,
   fetchContainerStats,
+  fetchServers,
+  fetchServersHealth,
+  removeServer,
+  LOCAL_SERVER_ID,
 } from "./api/dashboardApi";
+import type { ServerHealthMap, ServerInfo } from "./api/dashboardApi";
+import ServerSidebar from "./ServerSidebar";
+import AddServerModal from "./AddServerModal";
 import { createPortal } from "react-dom";
 import {
   CartesianGrid,
@@ -60,7 +67,34 @@ const MAX_HISTORY = 30;
 
 type ContainerAction = "start" | "stop" | "restart";
 
+const ACTIVE_SERVER_KEY = "dashboard-server";
+const LOCAL_SERVER: ServerInfo = {
+  id: LOCAL_SERVER_ID,
+  name: "This server",
+  url: "",
+  is_local: true,
+};
+
 function App() {
+  const [theme, setTheme] = useState<"light" | "dark">(() => {
+    const stored = window.localStorage.getItem("dashboard-theme");
+    if (stored === "light" || stored === "dark") {
+      return stored;
+    }
+    return window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    window.localStorage.setItem("dashboard-theme", theme);
+  }, [theme]);
+
+  const toggleTheme = useCallback(() => {
+    setTheme((current) => (current === "dark" ? "light" : "dark"));
+  }, []);
+
   const [system, setSystem] = useState<SystemInfo | null>(null);
   const [containers, setContainers] = useState<Container[]>([]);
   const [history, setHistory] = useState<HistoryPoint[]>([]);
@@ -82,9 +116,94 @@ function App() {
   const [connectionStatus, setConnectionStatus] =
     useState<ConnectionStatus>("connecting");
 
-  const fetchSystem = useCallback(async () => {
+  const [servers, setServers] = useState<ServerInfo[]>([LOCAL_SERVER]);
+  const [serverHealth, setServerHealth] = useState<ServerHealthMap>({});
+  const [showAddServer, setShowAddServer] = useState(false);
+  const [activeServerId, setActiveServerId] = useState<string>(
+    () => window.localStorage.getItem(ACTIVE_SERVER_KEY) || LOCAL_SERVER_ID,
+  );
+  // Sunucu değiştirildiğinde, eski sunucudan geç gelen yanıtları yok saymak için.
+  const activeServerIdRef = useRef(activeServerId);
+
+  const selectServer = useCallback((id: string) => {
+    activeServerIdRef.current = id;
+    window.localStorage.setItem(ACTIVE_SERVER_KEY, id);
+    setActiveServerId(id);
+    setSystem(null);
+    setHistory([]);
+    setContainers([]);
+    setLastUpdated(null);
+    setLogs(null);
+    setError(null);
+    setConnectionStatus("connecting");
+  }, []);
+
+  const loadServers = useCallback(async () => {
+    try {
+      const list = await fetchServers();
+      setServers(list);
+      if (!list.some((server) => server.id === activeServerIdRef.current)) {
+        selectServer(LOCAL_SERVER_ID);
+      }
+    } catch {
+      // Sunucu listesi alınamazsa sadece yerel sunucu gösterilir.
+    }
+  }, [selectServer]);
+
+  useEffect(() => {
+    void loadServers();
+  }, [loadServers]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const pollHealth = async () => {
       try {
-        const data = await fetchSystemInfo();
+        const health = await fetchServersHealth();
+        if (!cancelled) setServerHealth(health);
+      } catch {
+        // Durum bilgisi alınamazsa noktalar "Checking…" olarak kalır.
+      }
+    };
+
+    void pollHealth();
+    const interval = window.setInterval(() => void pollHealth(), CONTAINER_POLL_MS);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
+  }, [servers.length]);
+
+  const handleServerAdded = (server: ServerInfo) => {
+    setServers((previous) => [...previous, server]);
+    setShowAddServer(false);
+    selectServer(server.id);
+  };
+
+  const handleServerRemove = async (server: ServerInfo) => {
+    if (!window.confirm(`Remove "${server.name}" from the dashboard?`)) return;
+
+    try {
+      await removeServer(server.id);
+      setServers((previous) => previous.filter((item) => item.id !== server.id));
+      selectServer(LOCAL_SERVER_ID);
+    } catch (removeError) {
+      setError(
+        removeError instanceof Error
+          ? removeError.message
+          : "The server could not be removed.",
+      );
+    }
+  };
+
+  const fetchSystem = useCallback(async () => {
+      const serverId = activeServerId;
+
+      try {
+        const data = await fetchSystemInfo(serverId);
+
+        if (activeServerIdRef.current !== serverId) return;
 
         setSystem(data);
         setLastUpdated(new Date());
@@ -104,21 +223,37 @@ function App() {
             ram: data.ram,
           },
         ].slice(-MAX_HISTORY));
-      } catch {
+      } catch (systemError) {
+        if (activeServerIdRef.current !== serverId) return;
+
         setConnectionStatus("disconnected");
-        setError("Could not connect to the backend server.");
+        setError(
+          serverId !== LOCAL_SERVER_ID && systemError instanceof Error
+            ? systemError.message
+            : "Could not connect to the backend server.",
+        );
       }
-    }, []);
+    }, [activeServerId]);
   const fetchContainers = useCallback(async () => {
+  const serverId = activeServerId;
+
   try {
-    const data = await fetchContainersApi();
+    const data = await fetchContainersApi(serverId);
+
+    if (activeServerIdRef.current !== serverId) return;
 
     setContainers(data);
     setError(null);
-  } catch {
-    setError("Docker information could not be retrieved.");
+  } catch (containersError) {
+    if (activeServerIdRef.current !== serverId) return;
+
+    setError(
+      serverId !== LOCAL_SERVER_ID && containersError instanceof Error
+        ? containersError.message
+        : "Docker information could not be retrieved.",
+    );
   }
-}, []);
+}, [activeServerId]);
 
   useEffect(() => {
     void fetchSystem();
@@ -173,7 +308,7 @@ function App() {
       setError(null);
 
       try {
-        await runContainerAction(containerName, action);
+        await runContainerAction(containerName, action, activeServerId);
 
         await fetchContainers();
       } catch (actionError) {
@@ -194,7 +329,7 @@ function App() {
       setLogs({ name: containerName, logs: "" });
 
       try {
-        const data = await fetchContainerLogs(containerName);
+        const data = await fetchContainerLogs(containerName, activeServerId);
         setLogs(data);
       } catch (logError) {
         setLogsError(
@@ -242,15 +377,28 @@ function App() {
     return (
       <ContainerDetails
         containerName={selectedContainer}
+        serverId={activeServerId}
         onBack={closeContainerDetails}
         onAction={handleContainerAction}
         actionLoading={actionLoading}
+        theme={theme}
+        onToggleTheme={toggleTheme}
       />
     );
   }
 
   return (
-    <div className="app-shell">
+    <div className="app-shell has-sidebar">
+      <div className="dashboard-layout">
+      <ServerSidebar
+        servers={servers}
+        health={serverHealth}
+        activeId={activeServerId}
+        onSelect={selectServer}
+        onAdd={() => setShowAddServer(true)}
+        onRemove={(server) => void handleServerRemove(server)}
+      />
+
       <main className="dashboard">
         <header className="page-header">
           <div>
@@ -259,7 +407,8 @@ function App() {
             <p>System monitoring and container management</p>
           </div>
 
-          <div className={`connection-status ${connectionStatus}`}>
+          <div className="header-right-group">
+            <div className={`connection-status ${connectionStatus}`}>
               <span className="status-indicator" />
 
               <span>
@@ -268,6 +417,25 @@ function App() {
                 {connectionStatus === "disconnected" && "Disconnected"}
               </span>
             </div>
+            <button
+              type="button"
+              className="theme-toggle-button"
+              onClick={toggleTheme}
+              aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+              title={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+            >
+              {theme === "dark" ? (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="4" />
+                  <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" />
+                </svg>
+              )}
+            </button>
+          </div>
         </header>
 
         {error && (
@@ -396,6 +564,14 @@ function App() {
           <span>System polling {SYSTEM_POLL_MS / 1000}s · Docker polling {CONTAINER_POLL_MS / 1000}s</span>
         </footer>
       </main>
+      </div>
+
+      {showAddServer && (
+        <AddServerModal
+          onClose={() => setShowAddServer(false)}
+          onAdded={handleServerAdded}
+        />
+      )}
 
       {logs && (
         <div className="modal-backdrop" role="presentation" onMouseDown={(event) => {
@@ -425,12 +601,15 @@ function App() {
 
 interface ContainerDetailsProps {
   containerName: string;
+  serverId: string;
   onBack: () => void;
   onAction: (name: string, action: ContainerAction) => void;
   actionLoading: string | null;
+  theme: "light" | "dark";
+  onToggleTheme: () => void;
 }
 
-function ContainerDetails({ containerName, onBack, onAction, actionLoading }: ContainerDetailsProps) {
+function ContainerDetails({ containerName, serverId, onBack, onAction, actionLoading, theme, onToggleTheme }: ContainerDetailsProps) {
   const [stats, setStats] = useState<ContainerStats | null>(null);
   const [history, setHistory] = useState<ContainerHistoryPoint[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -453,7 +632,7 @@ function ContainerDetails({ containerName, onBack, onAction, actionLoading }: Co
     setLogsError(null);
 
     try {
-      const data = await fetchContainerLogs(containerName);
+      const data = await fetchContainerLogs(containerName, serverId);
       setLogsText(data.logs);
     } catch (logError) {
       setLogsError(
@@ -468,7 +647,7 @@ function ContainerDetails({ containerName, onBack, onAction, actionLoading }: Co
 
   const loadStats = useCallback(async () => {
     try {
-      const data = await fetchContainerStats(containerName);
+      const data = await fetchContainerStats(containerName, serverId);
       setStats(data);
       setError(null);
       setLoading(false);
@@ -484,7 +663,7 @@ function ContainerDetails({ containerName, onBack, onAction, actionLoading }: Co
       setLoading(false);
       setError(statsError instanceof Error ? statsError.message : "Container metrics could not be retrieved.");
     }
-  }, [containerName]);
+  }, [containerName, serverId]);
 
   useEffect(() => {
     void loadStats();
@@ -506,6 +685,24 @@ function ContainerDetails({ containerName, onBack, onAction, actionLoading }: Co
             <p>Live resource usage for this Docker container</p>
           </div>
           <div className="container-header-right">
+            <button
+              type="button"
+              className="theme-toggle-button"
+              onClick={onToggleTheme}
+              aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+              title={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+            >
+              {theme === "dark" ? (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="4" />
+                  <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" />
+                </svg>
+              )}
+            </button>
             <div className={`container-live-status ${stats?.running ? "running" : "stopped"}`}>
               <span /> {stats?.running ? "Running" : "Stopped"}
             </div>

@@ -1,0 +1,26 @@
+# For another device/server you wish to add to the Dashboard (Raspberry Pi,
+# VPS, a second Linux machine...). Only the backend runs; no frontend is required.
+#
+# DASHBOARD_API_KEY=a-long-random-value docker compose -f docker-compose.agent.yml up -d --build
+#
+# Then, in the Dashboard, use "Add Server" to enter the address http://<this-device's-ip-address>:8000
+# and the same API key.
+services:
+  agent:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+
+    container_name: server-dashboard-agent
+
+    environment:
+      DASHBOARD_API_KEY: ${DASHBOARD_API_KEY:?DASHBOARD_API_KEY must be defined.}
+      DASHBOARD_CORS_ORIGINS: http://localhost
+
+    ports:
+      - "8000:8000"
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+    restart: unless-stopped
