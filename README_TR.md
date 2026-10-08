@@ -1,5 +1,8 @@
 # Server Dashboard
 
+[![English](https://img.shields.io/badge/lang-English-blue)](README.md)
+[![Türkçe](https://img.shields.io/badge/dil-Türkçe-red)](README_TR.md)
+
 Ana makine sistem kaynaklarını (CPU/RAM/disk) izlemek ve Docker konteynerlerini bir web arayüzünden yönetmek için geliştirilmiş küçük bir full-stack uygulama.
 
 - **Frontend**: React 19 + TypeScript + Vite + Recharts
@@ -76,24 +79,41 @@ Bu pencereyi açık bırak, ardından ikinci bir terminalde `docker compose up` 
   - Windows Firewall ilk çalıştırmada script'i engellemiş olabilir;
   - çökmüşse elle yeniden başlat (`start.bat` bunu artık otomatik yapıyor).
 
-## Windows'ta Docker kullanımı
-
-Uygulama `start.bat` ile başlatıldığında FastAPI backend'i Docker içinde çalışır; küçük bir Windows host metrics agent ise Windows makinesinde çalışır. `/api/system` endpoint'i CPU, RAM ve C: disk kullanımını Linux backend container'ından değil, gerçek Windows ana makinesinden alır.
-
-Dashboard'u başlatmak için `start.bat`, durdurmak için `stop.bat` kullanın.
-
 ## Ekran Görüntüleri
-[Açık tema dashboard ana sayfası](Screenshots/Dashboard-home-page-light.png)
+> Tam halini görmek için resimlere tıklayın
 
-[Açık tema docker metrik sayfası](Screenshots/Dashboard-Docker-container-page-light.png)
-
-[Koyu tema dashboard ana sayfası](Screenshots/Dashboard-home-page-dark.png)
-
-[Koyu tema docker metrik sayfası](Screenshots/Dashboard-Docker-container-page-dark.png)
-
-[Server görüntüleme için yan panel](Screenshots/Dashboard-servers-side-panel.png)
-
-[Server ekleme paneli](Screenshots/Dashboard-Add-Server-panel.png)
+<table>
+  <tr>
+    <td align="center">
+      <a href="Screenshots/Dashboard-home-page-light.png"><img src="Screenshots/Dashboard-home-page-light.png" width="380" alt="Dashboard home page (light theme)"></a>
+      <br><sub>Açık tema dashboard ana sayfası</sub>
+    </td>
+    <td align="center">
+      <a href="Screenshots/Dashboard-home-page-dark.png"><img src="Screenshots/Dashboard-home-page-dark.png" width="380" alt="Dashboard home page (dark theme)"></a>
+      <br><sub>Koyu tema dashboard ana sayfası</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <a href="Screenshots/Dashboard-Docker-container-page-light.png"><img src="Screenshots/Dashboard-Docker-container-page-light.png" width="380" alt="Docker metrics page (light theme)"></a>
+      <br><sub>Açık tema docker metrik sayfası</sub>
+    </td>
+    <td align="center">
+      <a href="Screenshots/Dashboard-Docker-container-page-dark.png"><img src="Screenshots/Dashboard-Docker-container-page-dark.png" width="380" alt="Docker metrics page (dark theme)"></a>
+      <br><sub>Koyu tema docker metrik sayfası</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <a href="Screenshots/Dashboard-servers-side-panel.png"><img src="Screenshots/Dashboard-servers-side-panel.png" width="288" alt="Server view side panel"></a>
+      <br><sub>Server görüntüleme için yan panel</sub>
+    </td>
+    <td align="center">
+      <a href="Screenshots/Dashboard-Add-Server-panel.png"><img src="Screenshots/Dashboard-Add-Server-panel.png" width="380" alt="Add server panel"></a>
+      <br><sub>Server ekleme paneli</sub>
+    </td>
+  </tr>
+</table>
 
 ## Proje Yapısı
 

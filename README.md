@@ -1,5 +1,8 @@
 # Server Dashboard
 
+[![English](https://img.shields.io/badge/lang-English-blue)](README.md)
+[![Türkçe](https://img.shields.io/badge/dil-Türkçe-red)](README_TR.md)
+
 Small full-stack app for monitoring host system resources (CPU/RAM/disk) and
 managing Docker containers from a web UI.
 
@@ -77,23 +80,41 @@ Leave that window open, then run `docker compose up` in a second terminal. Witho
   - Windows Firewall hasn't blocked the script on first run;
   - if it crashed, restart it manually (`start.bat` does this automatically going forward).
 
-## Docker on Windows
-
-When the application is started with `start.bat`, the FastAPI backend runs in Docker while a small Windows host metrics agent runs on the Windows machine. The `/api/system` endpoint reads CPU, RAM and C: disk usage from the Windows host rather than from the Linux backend container.
-
-Use `start.bat` to start the dashboard and `stop.bat` to stop it.
 ## Screenshots
-[Dashboard home page (light theme)](Screenshots/Dashboard-home-page-light.png)
+> Click an image to view it full size.
 
-[Docker metrics page (light theme)](Screenshots/Dashboard-Docker-container-page-light.png)
-
-[Dashboard home page (dark theme)](Screenshots/Dashboard-home-page-dark.png)
-
-[Docker metrics page (dark theme)](Screenshots/Dashboard-Docker-container-page-dark.png)
-
-[Server view side panel](Screenshots/Dashboard-servers-side-panel.png)
-
-[Add server panel](Screenshots/Dashboard-Add-Server-panel.png)
+<table>
+  <tr>
+    <td align="center">
+      <a href="Screenshots/Dashboard-home-page-light.png"><img src="Screenshots/Dashboard-home-page-light.png" width="380" alt="Dashboard home page (light theme)"></a>
+      <br><sub>Home page (light)</sub>
+    </td>
+    <td align="center">
+      <a href="Screenshots/Dashboard-home-page-dark.png"><img src="Screenshots/Dashboard-home-page-dark.png" width="380" alt="Dashboard home page (dark theme)"></a>
+      <br><sub>Home page (dark)</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <a href="Screenshots/Dashboard-Docker-container-page-light.png"><img src="Screenshots/Dashboard-Docker-container-page-light.png" width="380" alt="Docker metrics page (light theme)"></a>
+      <br><sub>Docker metrics (light)</sub>
+    </td>
+    <td align="center">
+      <a href="Screenshots/Dashboard-Docker-container-page-dark.png"><img src="Screenshots/Dashboard-Docker-container-page-dark.png" width="380" alt="Docker metrics page (dark theme)"></a>
+      <br><sub>Docker metrics (dark)</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <a href="Screenshots/Dashboard-servers-side-panel.png"><img src="Screenshots/Dashboard-servers-side-panel.png" width="288" alt="Server view side panel"></a>
+      <br><sub>Server side panel</sub>
+    </td>
+    <td align="center">
+      <a href="Screenshots/Dashboard-Add-Server-panel.png"><img src="Screenshots/Dashboard-Add-Server-panel.png" width="380" alt="Add server panel"></a>
+      <br><sub>Add server panel</sub>
+    </td>
+  </tr>
+</table>
 ## Project structure
 
 ```
