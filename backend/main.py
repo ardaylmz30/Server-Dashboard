@@ -7,9 +7,12 @@ import urllib.error
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 
+from anomaly_engine import monitor
+from environment_monitor import env_monitor
+from notifier import send_email_alert, send_telegram_alert
 from dotenv import load_dotenv
-from fastapi import Depends, FastAPI, Header, HTTPException, Request
-from pydantic import BaseModel
+from fastapi import Depends, FastAPI, Header, HTTPException, Path, Request
+from pydantic import BaseModel, Field
 from fastapi.middleware.cors import CORSMiddleware
 import docker
 import psutil
@@ -135,8 +138,18 @@ def get_host_metrics():
     dependencies=[Depends(require_api_key)],
 )
 def get_system_info():
-    return get_host_metrics()
+    metrics = get_host_metrics()
 
+    # --- YENİ EKLENEN KISIM: Anomali Kontrolü ---
+    try:
+        cpu_val = metrics.get("cpu", 0.0)
+        # Sistem CPU değerini anomali motoruna işliyoruz
+        monitor.process_metric(server_id="local-server", cpu_value=cpu_val)
+    except Exception as e:
+        print(f"[Anomali Motoru Hatası]: {e}")
+    # ---------------------------------------------
+
+    return metrics
 
 @app.get(
     "/api/docker",
@@ -171,6 +184,90 @@ def handle_docker_action(action, container_name: str):
             detail=f"Docker API error: {exc.explanation}",
         ) from exc
 
+
+@app.get(
+    "/api/alerts",
+    dependencies=[Depends(require_api_key)],
+)
+def get_alerts():
+    """Oluşan son CPU anomalilerini ve olayları frontend paneline iletir."""
+    return {
+        "active_events": list(monitor.active_events.values()),
+        "recent_logs": list(monitor.alert_logs)
+    }
+
+
+@app.post(
+    "/api/alerts/test",
+    dependencies=[Depends(require_api_key)],
+)
+def test_notifications():
+    """E-posta ve Telegram bildirim kanallarını test etmek için suni anomali tetikler."""
+    # Normal bir değerle başlatalım
+    monitor.process_metric(server_id="test-sunucusu", cpu_value=20.0)
+    # Ani bir sıçrama simüle edelim (+30 puan değişim ve yüksek CPU)
+    alert_result = monitor.process_metric(server_id="test-sunucusu", cpu_value=55.0)
+
+    return {
+        "ok": True,
+        "message": "Test anomalisi oluşturuldu. Telegram ve E-posta kontrol edilebilir.",
+        "details": alert_result
+    }
+
+
+# ---------------------------------------------------------------------------
+# ESP32 ortam sensörleri
+# ---------------------------------------------------------------------------
+
+# ESP32'ye ana panel anahtarı yerine ayrı bir anahtar verilebilir.
+SENSOR_API_KEY = os.environ.get("SENSOR_API_KEY") or API_KEY
+
+
+def require_sensor_key(
+    x_api_key: str | None = Header(
+        default=None,
+        alias="X-API-Key",
+    ),
+):
+    if x_api_key != SENSOR_API_KEY:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid or missing sensor API key.",
+        )
+
+
+class SensorReading(BaseModel):
+    temperature: float = Field(ge=-40, le=85)
+    humidity: float | None = Field(default=None, ge=0, le=100)
+
+
+@app.post(
+    "/api/sensors/{device_id}/readings",
+    dependencies=[Depends(require_sensor_key)],
+)
+def receive_sensor_reading(
+    reading: SensorReading,
+    device_id: str = Path(pattern=r"^[A-Za-z0-9_-]{1,40}$"),
+):
+    """ESP32'den gelen sıcaklık/nem ölçümünü alır ve alarm kurallarından geçirir."""
+    cpu_hist = monitor.history.get("local-server")
+    cpu = cpu_hist[-1] if cpu_hist else None
+    return env_monitor.process_reading(
+        device_id, reading.temperature, reading.humidity, cpu=cpu
+    )
+
+
+@app.get(
+    "/api/sensors",
+    dependencies=[Depends(require_api_key)],
+)
+def get_sensors():
+    """Sensörlerin son ölçümleri ve ortam alarmları."""
+    return {
+        "devices": list(env_monitor.latest.values()),
+        "active_events": list(env_monitor.active_events.values()),
+        "recent_logs": list(env_monitor.alert_logs)
+    }
 
 @app.post(
     "/api/docker/{container_name}/start",

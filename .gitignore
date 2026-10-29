@@ -31,3 +31,5 @@ builder.md
 planner.md
 reviewer.md
 ui-agent.md
+# ESP32 secrets
+esp32-sensor/secrets.h

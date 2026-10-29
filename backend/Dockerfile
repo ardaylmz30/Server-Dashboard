@@ -9,9 +9,7 @@ COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY main.py .
-COPY docker_manager.py .
-COPY servers.py .
+COPY . .
 
 EXPOSE 8000
 
