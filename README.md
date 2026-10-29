@@ -1,7 +1,9 @@
-# Server Dashboard
+<h1 align="center">Server Dashboard</h1>
 
-[![English](https://img.shields.io/badge/lang-English-blue)](README.md)
-[![Türkçe](https://img.shields.io/badge/dil-Türkçe-red)](README_TR.md)
+<p align="center">
+  <a href="README.md"><img src="https://img.shields.io/badge/English-2563eb?style=for-the-badge" alt="English"></a>
+  <a href="README_TR.md"><img src="https://img.shields.io/badge/T%C3%BCrk%C3%A7e-6b7280?style=for-the-badge" alt="Türkçe"></a>
+</p>
 
 Small full-stack app for monitoring host system resources (CPU/RAM/disk) and
 managing Docker containers from a web UI.

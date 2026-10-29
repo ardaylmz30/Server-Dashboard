@@ -1,7 +1,9 @@
-# Server Dashboard
+<h1 align="center">Server Dashboard</h1>
 
-[![English](https://img.shields.io/badge/lang-English-blue)](README.md)
-[![Türkçe](https://img.shields.io/badge/dil-Türkçe-red)](README_TR.md)
+<p align="center">
+  <a href="README.md"><img src="https://img.shields.io/badge/English-6b7280?style=for-the-badge" alt="English"></a>
+  <a href="README_TR.md"><img src="https://img.shields.io/badge/T%C3%BCrk%C3%A7e-2563eb?style=for-the-badge" alt="Türkçe"></a>
+</p>
 
 Ana makine sistem kaynaklarını (CPU/RAM/disk) izlemek ve Docker konteynerlerini bir web arayüzünden yönetmek için geliştirilmiş küçük bir full-stack uygulama.
 
