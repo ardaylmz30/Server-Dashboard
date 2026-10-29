@@ -283,6 +283,19 @@ thead th {
   transition: width 250ms ease, background-color 240ms ease;
 }
 
+.metrics-grid.with-sensors {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.metric-fill.warning { background: var(--color-warning-dot); }
+.metric-fill.critical { background: var(--color-danger-dot); }
+
+@media (max-width: 1200px) {
+  .metrics-grid.with-sensors {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 .metric-detail {
   margin-top: 11px;
   color: var(--text-secondary);
@@ -748,7 +761,8 @@ thead th:nth-child(5), tbody td:nth-child(5) { width: 13%; }
     gap: 18px;
   }
 
-  .metrics-grid {
+  .metrics-grid,
+  .metrics-grid.with-sensors {
     grid-template-columns: 1fr;
   }
 

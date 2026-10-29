@@ -8,9 +8,10 @@ import {
   fetchServers,
   fetchServersHealth,
   removeServer,
+  fetchSensors,
   LOCAL_SERVER_ID,
 } from "./api/dashboardApi";
-import type { ServerHealthMap, ServerInfo } from "./api/dashboardApi";
+import type { SensorReading, ServerHealthMap, ServerInfo } from "./api/dashboardApi";
 import ServerSidebar from "./ServerSidebar";
 import AddServerModal from "./AddServerModal";
 import { createPortal } from "react-dom";
@@ -63,6 +64,9 @@ interface ContainerHistoryPoint {
 
 const SYSTEM_POLL_MS = 2000;
 const CONTAINER_POLL_MS = 10000;
+const SENSOR_POLL_MS = 5000;
+// ESP32 10 sn'de bir gönderir; bu süre boyunca yeni ölçüm gelmezse sensör çevrimdışı sayılır.
+const SENSOR_STALE_MS = 30000;
 const MAX_HISTORY = 30;
 
 type ContainerAction = "start" | "stop" | "restart";
@@ -268,6 +272,39 @@ function App() {
     };
   }, [fetchSystem, fetchContainers]);
 
+  const [sensor, setSensor] = useState<SensorReading | null>(null);
+  const [sensorStale, setSensorStale] = useState(false);
+  // Backend saatine güvenmek yerine ölçümün en son ne zaman değiştiğini tarayıcıda takip eder.
+  const sensorSeenRef = useRef<{ timestamp: string; at: number } | null>(null);
+  const isLocalServer = activeServerId === LOCAL_SERVER_ID;
+
+  useEffect(() => {
+    if (!isLocalServer) return;
+
+    const loadSensors = async () => {
+      try {
+        const data = await fetchSensors();
+        const reading = data.devices[0] ?? null;
+        const now = Date.now();
+
+        if (reading && sensorSeenRef.current?.timestamp !== reading.timestamp) {
+          sensorSeenRef.current = { timestamp: reading.timestamp, at: now };
+        }
+
+        setSensor(reading);
+        setSensorStale(
+          !sensorSeenRef.current || now - sensorSeenRef.current.at > SENSOR_STALE_MS,
+        );
+      } catch {
+        setSensorStale(true);
+      }
+    };
+
+    void loadSensors();
+    const sensorInterval = window.setInterval(() => void loadSensors(), SENSOR_POLL_MS);
+    return () => window.clearInterval(sensorInterval);
+  }, [isLocalServer]);
+
  useEffect(() => {
   const handlePointerDown = (event: MouseEvent) => {
     const target = event.target as Node;
@@ -447,10 +484,27 @@ function App() {
           </div>
         )}
 
-        <section className="metrics-grid" aria-label="System metrics">
+        <section className={`metrics-grid${isLocalServer ? " with-sensors" : ""}`} aria-label="System metrics">
           <MetricCard label="CPU" value={system ? `${system.cpu.toFixed(1)}%` : "—"} percent={system?.cpu ?? 0} />
           <MetricCard label="Memory" value={system ? `${system.ram.toFixed(1)}%` : "—"} percent={system?.ram ?? 0} detail={system ? `${memoryGb} GB of ${memoryTotalGb.toFixed(1)} GB` : "Waiting for data"} />
           <MetricCard label="Storage" value={system ? `${system.disk.toFixed(1)}%` : "—"} percent={system?.disk ?? 0} />
+          {isLocalServer && (
+            <>
+              <MetricCard
+                label="Temperature"
+                value={sensor ? `${sensor.temperature.toFixed(1)}°C` : "—"}
+                percent={sensor ? (sensor.temperature / 50) * 100 : 0}
+                detail={sensorDetail(sensor, sensorStale)}
+                tone={sensorStale ? undefined : sensor?.severity}
+              />
+              <MetricCard
+                label="Humidity"
+                value={sensor?.humidity != null ? `${sensor.humidity.toFixed(1)}%` : "—"}
+                percent={sensor?.humidity ?? 0}
+                detail={sensorDetail(sensor, sensorStale)}
+              />
+            </>
+          )}
         </section>
 
         <section className="panel performance-panel">
@@ -798,15 +852,25 @@ interface MetricCardProps {
   value: string;
   percent: number;
   detail?: string;
+  tone?: SensorReading["severity"];
 }
 
-function MetricCard({ label, value, percent, detail }: MetricCardProps) {
+function sensorDetail(sensor: SensorReading | null, stale: boolean): string {
+  if (!sensor) return "Waiting for ESP32 sensor";
+  if (stale) return `${sensor.device_id} · Sensor offline`;
+  if (sensor.severity === "Kritik") return `${sensor.device_id} · Critical`;
+  if (sensor.severity === "Uyarı") return `${sensor.device_id} · Warning`;
+  return `${sensor.device_id} · Normal`;
+}
+
+function MetricCard({ label, value, percent, detail, tone }: MetricCardProps) {
+  const toneClass = tone === "Kritik" ? " critical" : tone === "Uyarı" ? " warning" : "";
   return (
     <article className="metric-card">
       <div className="metric-label">{label}</div>
       <div className="metric-value">{value}</div>
       <div className="metric-track" aria-hidden="true">
-        <div className="metric-fill" style={{ width: `${Math.min(Math.max(percent, 0), 100)}%` }} />
+        <div className={`metric-fill${toneClass}`} style={{ width: `${Math.min(Math.max(percent, 0), 100)}%` }} />
       </div>
       <div className="metric-detail">{detail || (percent < 80 ? "Normal utilization" : "High utilization")}</div>
     </article>

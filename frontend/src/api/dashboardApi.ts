@@ -129,6 +129,34 @@ export async function fetchContainerLogs(
   return response.json();
 }
 
+export interface SensorReading {
+  device_id: string;
+  timestamp: string;
+  temperature: number;
+  humidity: number | null;
+  smoothed_temperature: number;
+  severity?: "Normal" | "Uyarı" | "Kritik";
+}
+
+export interface SensorsInfo {
+  devices: SensorReading[];
+}
+
+// ESP32 sensörleri yalnızca yerel backend'e veri gönderir.
+export async function fetchSensors(): Promise<SensorsInfo> {
+  const response = await fetch(`${API_URL}/api/sensors`, {
+    headers: authHeaders,
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      await extractErrorDetail(response, "Sensor API error"),
+    );
+  }
+
+  return response.json();
+}
+
 export interface ContainerStats {
   name: string; status: string; running: boolean; cpu_percent: number; memory_percent: number;
   memory_usage_mb: number; memory_limit_mb: number; network_rx_mb: number; network_tx_mb: number;

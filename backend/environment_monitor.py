@@ -58,7 +58,8 @@ class EnvironmentMonitor:
         is_candidate = high_temp or rapid_rise or bad_humidity
 
         if not is_candidate:
-            return {"is_anomaly": False, "severity": "Normal", **self.latest[device_id]}
+            self.latest[device_id]["severity"] = "Normal"
+            return {"is_anomaly": False, **self.latest[device_id]}
 
         # 3. Olay gruplama (cooldown süresinden yakın anomalileri tek olayda birleştir)
         event = self.active_events.get(device_id)
@@ -96,6 +97,7 @@ class EnvironmentMonitor:
             severity = "Kritik"
 
         event["severity"] = severity
+        self.latest[device_id]["severity"] = severity
 
         alert_payload = {
             "device_id": device_id,
